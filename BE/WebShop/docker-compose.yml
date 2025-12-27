@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: webshop-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: WebShop
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456"]
+      interval: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - webshop-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: webshop-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - webshop-network
+
+  minio:
+    image: minio/minio
+    container_name: webshop-minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: 12345678
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - webshop-network
+
+  fe-dev:
+    image: node:22-alpine
+    container_name: webshop-fe-dev
+    working_dir: /app
+    volumes:
+      - ../../FE/fe_web_shop:/app
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    expose:
+      - "5173"
+    networks:
+      - webshop-network
+
+  webshop-backend:
+    image: webshop-backend
+    container_name: webshop-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - webshop-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: webshop-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - fe-dev
+      - minio
+      - webshop-backend
+    networks:
+      - webshop-network
+
+volumes:
+  mysql_data:
+  minio_data:
+
+networks:
+  webshop-network:
+    driver: bridge
