@@ -10,14 +10,15 @@ public class MinioConfig {
 
     @Bean
     MinioClient minioClient(
-            @Value("${minio.url}") String url,
+            @Value("${minio.internal-url}") String internalUrl,
             @Value("${minio.access-key}") String access,
             @Value("${minio.secret-key}") String secret
     ) {
         return MinioClient.builder()
-                .endpoint(url)
+                .endpoint(internalUrl)
                 .credentials(access, secret)
                 .build();
     }
 }
+
 

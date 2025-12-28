@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 import java.util.List;
 
 @RestController
@@ -22,54 +25,44 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ObjectMapper objectMapper;
 
     @GetMapping
     public Page<ProductResponse> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ) {
-<<<<<<< HEAD
         return productService.getProductPage(page, size);
     }
 
-
-=======
-        System.out.println("API /api/products called with page: " + page + " and size: " + size);
-        return productService.getProductPage(page, size);
-    }
-
->>>>>>> 5e94152 (tanh fix docker)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProductResponse addProduct(
             @RequestPart("product") String productJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> files
     ) throws Exception {
+        ProductRequest request = objectMapper.readValue(productJson, ProductRequest.class);
 
-        ObjectMapper mapper = new ObjectMapper();
-        ProductRequest request =
-                mapper.readValue(productJson, ProductRequest.class);
-
-        if (request.getImages() == null || request.getImages().isEmpty()) {
-            return productService.addProduct(request);
+        if (request.getImages() != null && request.getImages().isEmpty() && (files == null || files.isEmpty())) {
+            throw new ProductException("Images metadata exists but no image files uploaded");
         }
 
-        if (files == null || files.isEmpty()) {
-            throw new RuntimeException("Images metadata exists but no image files uploaded");
+        if (request.getImages() != null && request.getImages().size() != files.size()) {
+            throw new ProductException("Number of image metadata must match number of image files");
         }
 
-        if (request.getImages().size() != files.size()) {
-            throw new RuntimeException(
-                    "Number of image metadata must match number of image files"
-            );
-        }
-
-        for (int i = 0; i < request.getImages().size(); i++) {
-            request.getImages().get(i).setFile(files.get(i));
+        if (files != null && !files.isEmpty()) {
+            for (int i = 0; i < request.getImages().size(); i++) {
+                request.getImages().get(i).setFile(files.get(i));
+            }
         }
 
         return productService.addProduct(request);
     }
 
-
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public static class ProductException extends RuntimeException {
+        public ProductException(String message) {
+            super(message);
+        }
+    }
 }
-

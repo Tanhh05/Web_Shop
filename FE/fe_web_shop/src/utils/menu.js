@@ -10,6 +10,11 @@ export const menuItems = [
         route: '/admin/products'
     },
     {
+        label: 'Danh mục',
+        icon: 'Goods',
+        route: '/admin/categories'
+    },
+    {
         label: 'Đơn hàng',
         icon: 'Box',
         route: '/admin/orders'

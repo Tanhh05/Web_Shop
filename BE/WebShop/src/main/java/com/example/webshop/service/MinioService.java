@@ -18,12 +18,9 @@ public class MinioService {
     @Value("${minio.bucket}")
     private String bucket;
 
-<<<<<<< HEAD
-    @Value("${minio.url}")
-    private String minioUrl;
+    @Value("${minio.public-url}")
+    private String publicUrl;
 
-=======
->>>>>>> 5e94152 (tanh fix docker)
     public String upload(MultipartFile file) {
         try {
             if (file == null || file.isEmpty()) {
@@ -41,18 +38,12 @@ public class MinioService {
                             .build()
             );
 
-<<<<<<< HEAD
-            return minioUrl + "/" + bucket + "/" + fileName;
-=======
-            return "/minio/" + bucket + "/" + fileName;
->>>>>>> 5e94152 (tanh fix docker)
+            return publicUrl + "/" + bucket + "/" + fileName;
 
         } catch (Exception e) {
             throw new RuntimeException("Upload image failed", e);
         }
     }
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> 5e94152 (tanh fix docker)
+

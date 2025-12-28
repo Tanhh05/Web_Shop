@@ -1,13 +1,11 @@
-
-import { createRouter, createWebHistory } from 'vue-router'
-import AdminLayout from '@/layout/AdminLayout.vue'
-
-import Dashboard from '@/views/Dashboard.vue'
-import Product from '@/views/Product/Product.vue'
-import Order from '@/views/Order.vue'
-import Customer from '@/views/Customer.vue'
-import Setting from '@/views/Setting.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import AdminLayout from '@/layout/AdminLayout.vue';
+import Dashboard from '@/views/Dashboard.vue';
+import Product from '@/views/Product/Product.vue';
 import AddProduct from "@/views/Product/AddProduct.vue";
+import CategoryList from "@/views/Category/CategoryList.vue";
+import AddCategory from "@/views/Category/AddCategory.vue";
+import EditCategory from "@/views/Category/EditCategory.vue";
 
 const routes = [
     {
@@ -16,22 +14,29 @@ const routes = [
         redirect: "/admin/dashboard",
         children: [
             { path: "dashboard", component: Dashboard },
-
             { path: "products", component: Product },
-
+            { path: "products/add", component: AddProduct },
             {
-                path: "products/add",
-                component: AddProduct,
+                path: "categories",
+                name: 'Categories',
+                component: CategoryList,
             },
-
-            { path: "orders", component: Order },
-            { path: "customers", component: Customer },
-            { path: "settings", component: Setting },
+            {
+                path: "categories/add",  // Ensure this is correctly under "/admin"
+                name: 'AddCategory',
+                component: AddCategory,
+            },
+            {
+                path: "categories/edit/:id",
+                name: 'EditCategory',
+                component: EditCategory,
+                props: true,
+            },
         ],
     },
 ];
 
 export default createRouter({
     history: createWebHistory(),
-    routes
-})
+    routes,
+});

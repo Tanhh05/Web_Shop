@@ -1,13 +1,9 @@
 {
   "dependencies": {
-<<<<<<< HEAD
-    "axios": "^1.13.2"
-=======
     "axios": "^1.13.2",
     "element-plus": "^2.13.0",
     "rollup": "^4.54.0",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
->>>>>>> 5e94152 (tanh fix docker)
   }
 }
